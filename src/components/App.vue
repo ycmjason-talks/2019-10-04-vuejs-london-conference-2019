@@ -20,11 +20,12 @@
 </template>
 
 <script lang="ts">
-import { createComponent, onMounted } from '@vue/composition-api';
+import { createComponent, onMounted, onBeforeUnmount } from '@vue/composition-api';
 import Footer from '/components/Footer.vue';
 import PianoKeyboard from '/components/PianoKeyboard.vue';
 import { SEMITONE, A4, OCTAVE } from '/audio/frequencies';
 import { startNote, stopNote } from '../audio';
+import zip from 'lodash.zip'; // zip([1,2,3], [4, 5]) => [[1, 4], [2, 5], [3, undefined]]
 
 const F2 = A4 * SEMITONE(-4) * OCTAVE(-1);
 
@@ -37,12 +38,28 @@ const lowerFrequencies = lowerKeys.map((_, i) => F2 * SEMITONE(i) * OCTAVE(-1));
 export default createComponent({
   components: { Footer, PianoKeyboard },
   setup() {
-    onMounted(() => {
-      window.addEventListener('click', () => {
-        startNote(440);
-        setTimeout(() => stopNote(440), 1000);
+    for (const [key, frequency] of zip(higherKeys, higherFrequencies)) {
+      if (!key || !frequency) continue;
+      const onKeyDown = (e: KeyboardEvent) => {
+        if (e.key === key) {
+          startNote(frequency);
+        }
+      };
+      const onKeyUp = (e: KeyboardEvent) => {
+        if (e.key === key) {
+          stopNote(frequency);
+        }
+      };
+
+      onMounted(() => {
+        window.addEventListener('keydown', onKeyDown);
+        window.addEventListener('keyup', onKeyUp);
       });
-    });
+      onBeforeUnmount(() => {
+        window.removeEventListener('keydown', onKeyDown);
+        window.removeEventListener('keyup', onKeyUp);
+      });
+    }
 
     return {
       higherKeys,
