@@ -20,10 +20,11 @@
 </template>
 
 <script lang="ts">
-import { createComponent } from '@vue/composition-api';
+import { createComponent, onMounted } from '@vue/composition-api';
 import Footer from '/components/Footer.vue';
 import PianoKeyboard from '/components/PianoKeyboard.vue';
 import { SEMITONE, A4, OCTAVE } from '/audio/frequencies';
+import { startNote, stopNote } from '../audio';
 
 const F2 = A4 * SEMITONE(-4) * OCTAVE(-1);
 
@@ -36,6 +37,13 @@ const lowerFrequencies = lowerKeys.map((_, i) => F2 * SEMITONE(i) * OCTAVE(-1));
 export default createComponent({
   components: { Footer, PianoKeyboard },
   setup() {
+    onMounted(() => {
+      window.addEventListener('click', () => {
+        startNote(440);
+        setTimeout(() => stopNote(440), 1000);
+      });
+    });
+
     return {
       higherKeys,
       lowerKeys,
