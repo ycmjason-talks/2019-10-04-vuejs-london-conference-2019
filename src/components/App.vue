@@ -7,6 +7,7 @@
         startKey="F"
         :numberOfKeys="higherKeys.length"
         :labels="higherKeys"
+        :isActives="higherIsActives"
       ></PianoKeyboard>
       <PianoKeyboard
         class="lowerPiano"
@@ -20,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent } from '@vue/composition-api';
+import { createComponent, computed } from '@vue/composition-api';
 import Footer from '/components/Footer.vue';
 import PianoKeyboard from '/components/PianoKeyboard.vue';
 import { SEMITONE, A4, OCTAVE } from '/audio/frequencies';
@@ -39,14 +40,15 @@ const lowerFrequencies = lowerKeys.map((_, i) => F2 * SEMITONE(i) * OCTAVE(-1));
 export default createComponent({
   components: { Footer, PianoKeyboard },
   setup() {
-    for (const [key, frequency] of zip(higherKeys, higherFrequencies)) {
-      if (!key || !frequency) continue;
-      const isKeyDown = useKeyDown(key);
+    const higherIsKeyDowns = higherKeys.map(key => useKeyDown(key));
+    for (const [frequency, isKeyDown] of zip(higherFrequencies, higherIsKeyDowns)) {
+      if (!frequency || !isKeyDown) continue;
       useMusicNote(frequency, isKeyDown);
     }
 
     return {
       higherKeys,
+      higherIsActives: computed(() => higherIsKeyDowns.map(({ value }) => value)),
       lowerKeys,
     };
   },
