@@ -14,6 +14,7 @@
         startKey="F"
         :numberOfKeys="lowerKeys.length"
         :labels="lowerKeys"
+        :isActives="lowerIsActives"
       ></PianoKeyboard>
     </main>
     <Footer class="footer"></Footer>
@@ -51,11 +52,13 @@ export default createComponent({
   components: { Footer, PianoKeyboard },
   setup() {
     const higherIsKeyDowns = usePiano(higherKeys, higherFrequencies);
+    const lowerIsKeyDowns = usePiano(lowerKeys, lowerFrequencies);
 
     return {
       higherKeys,
       higherIsActives: computed(() => higherIsKeyDowns.map(({ value }) => value)),
       lowerKeys,
+      lowerIsActives: computed(() => lowerIsKeyDowns.map(({ value }) => value)),
     };
   },
 });
