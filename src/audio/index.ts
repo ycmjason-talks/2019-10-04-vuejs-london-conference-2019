@@ -1,12 +1,10 @@
-const context = new AudioContext();
+import { createElectricPianoOscillator } from '/audio/createElectricPianoOscillator';
 
 const frequencyOscillatorMap: Map<number, OscillatorNode> = new Map();
 
 export const startNote = (frequency: number): void => {
   if (frequencyOscillatorMap.has(frequency)) return;
-  const oscillator = context.createOscillator();
-  oscillator.frequency.value = frequency;
-  oscillator.connect(context.destination);
+  const oscillator = createElectricPianoOscillator(frequency);
   oscillator.start();
   frequencyOscillatorMap.set(frequency, oscillator);
 };
