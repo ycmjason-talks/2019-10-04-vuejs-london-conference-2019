@@ -20,13 +20,13 @@
 </template>
 
 <script lang="ts">
-import { createComponent, onMounted, onBeforeUnmount, watch } from '@vue/composition-api';
+import { createComponent } from '@vue/composition-api';
 import Footer from '/components/Footer.vue';
 import PianoKeyboard from '/components/PianoKeyboard.vue';
 import { SEMITONE, A4, OCTAVE } from '/audio/frequencies';
-import { startNote, stopNote } from '../audio';
 import zip from 'lodash.zip'; // zip([1,2,3], [4, 5]) => [[1, 4], [2, 5], [3, undefined]]
 import { useKeyDown } from '../compositions/useKeyDown';
+import { useMusicNote } from '../compositions/useMusicNote';
 
 const F2 = A4 * SEMITONE(-4) * OCTAVE(-1);
 
@@ -42,13 +42,7 @@ export default createComponent({
     for (const [key, frequency] of zip(higherKeys, higherFrequencies)) {
       if (!key || !frequency) continue;
       const isKeyDown = useKeyDown(key);
-      watch(isKeyDown, isKeyDown => {
-        if (isKeyDown) {
-          startNote(frequency);
-        } else {
-          stopNote(frequency);
-        }
-      });
+      useMusicNote(frequency, isKeyDown);
     }
 
     return {
