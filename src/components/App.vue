@@ -37,14 +37,20 @@ const higherFrequencies = higherKeys.map((_, i) => F2 * SEMITONE(i));
 const lowerKeys = '`azsxdcvgbhnmk,l.;/'.split('');
 const lowerFrequencies = lowerKeys.map((_, i) => F2 * SEMITONE(i) * OCTAVE(-1));
 
+const usePiano = (keys: string[], frequencies: number[]) => {
+  const isKeyDowns = keys.map(key => useKeyDown(key));
+  for (const [frequency, isKeyDown] of zip(frequencies, isKeyDowns)) {
+    if (!frequency || !isKeyDown) continue;
+    useMusicNote(frequency, isKeyDown);
+  }
+
+  return isKeyDowns;
+};
+
 export default createComponent({
   components: { Footer, PianoKeyboard },
   setup() {
-    const higherIsKeyDowns = higherKeys.map(key => useKeyDown(key));
-    for (const [frequency, isKeyDown] of zip(higherFrequencies, higherIsKeyDowns)) {
-      if (!frequency || !isKeyDown) continue;
-      useMusicNote(frequency, isKeyDown);
-    }
+    const higherIsKeyDowns = usePiano(higherKeys, higherFrequencies);
 
     return {
       higherKeys,
